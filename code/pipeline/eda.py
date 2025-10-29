@@ -1,2 +1,0 @@
-def eda():
-    print('eda')

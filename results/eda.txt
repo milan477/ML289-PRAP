@@ -1,0 +1,1 @@
+1. Sensitive information is hidden using black bars and with mentions of the form '#NO', where NO represets a number.
