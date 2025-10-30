@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 
+import pandas as pd
+
+@dataclass
 class Page:
     text: str
     def __init__(self, text: str):
@@ -8,6 +11,7 @@ class Page:
     def __str__(self):
         return self.text
 
+@dataclass
 class Document:
     name: str
     format: str
@@ -15,8 +19,12 @@ class Document:
     def __str__(self):
         return 'self'
 
+    def describe(self):
+        return {"name": self.name, "format": self.format}
+
 @dataclass
 class PDF (Document):
+    {}
     pages: list[Page]
     type: str
 
@@ -36,6 +44,12 @@ class PDF (Document):
         full_text += f"\n########################################################## end of {self.name} of type {self.type} ##########################################################\n"
         return full_text
 
+    def describe(self):
+        return {'type': self.type, 'name': self.name, 'format': self.format, 'pages': "".join(str(self.pages))}
+
+
+
+@dataclass
 class Dataset:
     name: str
     documents: list[Document]
@@ -48,3 +62,15 @@ class Dataset:
         for document in self.documents:
             full_dataset += str(document)
         return full_dataset
+
+    def __len__(self):
+        return len(self.documents)
+
+    def to_frame(self):
+        all_documents = []
+        for document in self.documents:
+            all_documents.append(document.describe())
+        return pd.DataFrame(all_documents)
+
+
+

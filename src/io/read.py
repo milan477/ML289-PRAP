@@ -22,4 +22,4 @@ def read_pdfs(path: Path = DATA_DIR):
     return Dataset(pdfs)
 
 if __name__ == '__main__':
-    print(read_pdfs())
+    print(len(read_pdfs()))

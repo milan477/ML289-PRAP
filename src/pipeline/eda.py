@@ -1,4 +1,6 @@
+# %%
 from src.io.read import read_pdfs
+from src.schema.dataset import Dataset
 
 
 #%% LOAD DATA
@@ -8,4 +10,5 @@ print(data)
 
 
 #%%
+print(type(data))
 print(len(data),"files")
