@@ -1,2 +1,4 @@
 pandas
 pypdf
+pymupdf4llm
+fitz
