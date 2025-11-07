@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-
+import pathlib
 import pandas as pd
+from typing_extensions import override
+
 
 @dataclass
 class Page:
@@ -11,10 +13,14 @@ class Page:
     def __str__(self):
         return self.text
 
+    def __len__(self):
+        return len(self.text)
+
 @dataclass
 class Document:
     name: str
     format: str
+    location: pathlib.Path
 
     def __str__(self):
         return 'self'
@@ -24,15 +30,15 @@ class Document:
 
 @dataclass
 class PDF (Document):
-    {}
     pages: list[Page]
     type: str
 
-    def __init__(self,name):
+    def __init__(self,name,location):
         self.name = name
         self.format = "pdf"
         self.pages = []
         self.type = "unknown"
+        self.location = location
 
     def add_page(self,page):
         self.pages.append(page)
@@ -46,7 +52,6 @@ class PDF (Document):
 
     def describe(self):
         return {'type': self.type, 'name': self.name, 'format': self.format, 'pages': "".join(str(self.pages))}
-
 
 
 @dataclass
