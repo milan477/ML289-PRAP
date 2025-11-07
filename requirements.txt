@@ -2,3 +2,5 @@ pandas
 pypdf
 pymupdf4llm
 fitz
+bertopic
+spacy

@@ -18,7 +18,7 @@ def _read_single_pdf(path):
 def read_pdfs(path: Path = DATA_DIR):
     pdfs = []
     i = 0
-    for i in range(3):
+    for i in range(100):
         pdfs.append(_read_single_pdf(path / f"record{i}.pdf"))
 
     # for file in path.glob('*.pdf'):

@@ -28,6 +28,9 @@ class Document:
     def describe(self):
         return {"name": self.name, "format": self.format}
 
+    def get_full_content(self):
+        pass
+
 @dataclass
 class PDF (Document):
     pages: list[Page]
@@ -39,20 +42,26 @@ class PDF (Document):
         self.pages = []
         self.type = "unknown"
         self.location = location
+        print('new doc')
 
     def add_page(self,page):
         self.pages.append(page)
 
     def __str__(self):
         full_text = f"\n########################################################## begin of {self.name} of type {self.type} ##########################################################\n"
-        for page in self.pages:
-            full_text += str(page)
+        full_text += self.get_full_content()
         full_text += f"\n########################################################## end of {self.name} of type {self.type} ##########################################################\n"
         return full_text
 
     def describe(self):
         return {'type': self.type, 'name': self.name, 'format': self.format, 'pages': "".join(str(self.pages))}
 
+    @override
+    def get_full_content(self):
+        full_text = ""
+        for page in self.pages:
+            full_text += str(page)
+        return full_text
 
 @dataclass
 class Dataset:
