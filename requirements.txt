@@ -4,3 +4,5 @@ pymupdf4llm
 fitz
 bertopic
 spacy
+langid
+nltk==3.8.1

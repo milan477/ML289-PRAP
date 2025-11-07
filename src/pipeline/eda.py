@@ -33,6 +33,7 @@ from src.feature.text_features import (
 
 #%% LOAD DATA
 
+reload_all()
 data = read_pdfs()
 
 

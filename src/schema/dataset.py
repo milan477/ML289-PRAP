@@ -31,6 +31,8 @@ class Document:
     def get_full_content(self):
         pass
 
+
+
 @dataclass
 class PDF (Document):
     pages: list[Page]
