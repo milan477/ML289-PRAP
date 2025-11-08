@@ -5,4 +5,5 @@ fitz
 bertopic
 spacy
 langid
-nltk==3.8.1
+seaborn
+accelerate>=0.26.0
