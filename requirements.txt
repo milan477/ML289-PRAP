@@ -1,7 +1,7 @@
 pandas
 pypdf
 pymupdf4llm
-fitz
+# fitz
 bertopic
 spacy
 langid
@@ -9,3 +9,12 @@ nltk==3.8.1
 llama-parse
 llama-index
 python-dotenv
+pymupdf
+numpy
+sentence-transformers
+umap-learn
+hdbscan
+matplotlib
+seaborn
+scikit-learn
+tqdm
