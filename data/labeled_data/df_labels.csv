@@ -1,0 +1,106 @@
+record,text_len,num_images,label,filename
+data/record0.pdf,841,0,other,record0.pdf
+data/record1.pdf,4039,2,email/letter,record1.pdf
+data/record2.pdf,18318,2,meeting notes,record2.pdf
+data/record3.pdf,335373,1,internal affairs,record3.pdf
+data/record4.pdf,0,1,email/letter,record4.pdf
+data/record5.pdf,17424,0,email/letter,record5.pdf
+data/record6.pdf,259642,0,other,record6.pdf
+data/record7.pdf,0,1,image,record7.pdf
+data/record8.pdf,10488,3,use of force report,record8.pdf
+data/record9.pdf,10488,3,use of force report,record9.pdf
+data/record10.pdf,0,1,other report,record10.pdf
+data/record11.pdf,0,1,other report,record11.pdf
+data/record12.pdf,6210,1,arrest report,record12.pdf
+data/record13.pdf,6210,1,arrest report,record13.pdf
+data/record14.pdf,4920,0,interview transcript,record14.pdf
+data/record15.pdf,14758,0,interview transcript,record15.pdf
+data/record16.pdf,8312,0,interview transcript,record16.pdf
+data/record17.pdf,6348,5,image,record17.pdf
+data/record18.pdf,50399,0,other report,record18.pdf
+data/record19.pdf,89577,1,other report,record19.pdf
+data/record20.pdf,9199,1,other,record20.pdf
+data/record21.pdf,785,61,image,record21.pdf
+data/record22.pdf,6350,5,image,record22.pdf
+data/record23.pdf,4852,5,image,record23.pdf
+data/record24.pdf,50399,0,other report,record24.pdf
+data/record25.pdf,9199,1,other,record25.pdf
+data/record26.pdf,785,61,image,record26.pdf
+data/record27.pdf,0,1,other,record27.pdf
+data/record28.pdf,934236,1,other,record28.pdf
+data/record29.pdf,4521,0,other report,record29.pdf
+data/record30.pdf,0,1,image,record30.pdf
+data/record31.pdf,153562,1,other,record31.pdf
+data/record32.pdf,96681,1,internal affairs,record32.pdf
+data/record33.pdf,57461,0,other report,record33.pdf
+data/record34.pdf,16144,0,other report,record34.pdf
+data/record35.pdf,0,1,other report,record35.pdf
+data/record36.pdf,2576,0,other,record36.pdf
+data/record37.pdf,17,1,other,record37.pdf
+data/record38.pdf,50213,0,other,record38.pdf
+data/record39.pdf,2930,1,other,record39.pdf
+data/record40.pdf,0,1,internal affairs,record40.pdf
+data/record41.pdf,844141,0,other report,record41.pdf
+data/record42.pdf,117641,1,other,record42.pdf
+data/record43.pdf,160589,4,email/letter,record43.pdf
+data/record44.pdf,3425,0,use of force report,record44.pdf
+data/record45.pdf,27399,0,interview transcript,record45.pdf
+data/record46.pdf,5229,1,other report,record46.pdf
+data/record47.pdf,2448,0,other report,record47.pdf
+data/record48.pdf,94245,10,internal affairs,record48.pdf
+data/record49.pdf,6413,0,use of force report,record49.pdf
+data/record50.pdf,0,1,email/letter,record50.pdf
+data/record51.pdf,0,1,other,record51.pdf
+data/record52.pdf,0,1,other,record52.pdf
+data/record53.pdf,0,1,other,record53.pdf
+data/record54.pdf,8812,0,email/letter,record54.pdf
+data/record55.pdf,287,0,other,record55.pdf
+data/record56.pdf,9823,0,other,record56.pdf
+data/record57.pdf,3963,0,other,record57.pdf
+data/record58.pdf,8803,0,other,record58.pdf
+data/record59.pdf,13413,0,other,record59.pdf
+data/record60.pdf,0,1,image,record60.pdf
+data/record61.pdf,434091,0,other,record61.pdf
+data/record62.pdf,66697,0,other,record62.pdf
+data/record63.pdf,638648,1,other,record63.pdf
+data/record64.pdf,0,1,image,record64.pdf
+data/record65.pdf,14882,2,meeting notes,record65.pdf
+data/record66.pdf,0,1,email/letter,record66.pdf
+data/record67.pdf,214262,0,other report,record67.pdf
+data/record68.pdf,0,1,other,record68.pdf
+data/record69.pdf,14882,2,meeting notes,record69.pdf
+data/record70.pdf,0,1,email/letter,record70.pdf
+data/record71.pdf,0,1,image,record71.pdf
+data/record72.pdf,10567,1,internal affairs,record72.pdf
+data/record73.pdf,58984,0,interview transcript,record73.pdf
+data/record74.pdf,0,9,other,record74.pdf
+data/record75.pdf,0,1,other report,record75.pdf
+data/record76.pdf,0,1,other report,record76.pdf
+data/record77.pdf,0,1,image,record77.pdf
+data/record78.pdf,0,1,image,record78.pdf
+data/record79.pdf,0,7,other,record79.pdf
+data/record80.pdf,71668,0,other report,record80.pdf
+data/record81.pdf,0,1,internal affairs,record81.pdf
+data/record82.pdf,498,1,other,record82.pdf
+data/record83.pdf,73127,0,use of force report,record83.pdf
+data/record84.pdf,0,1,other,record84.pdf
+data/record85.pdf,0,1,other,record85.pdf
+data/record86.pdf,0,1,other,record86.pdf
+data/record87.pdf,0,1,internal affairs,record87.pdf
+data/record88.pdf,6198,1,internal affairs,record88.pdf
+data/record89.pdf,0,1,other,record89.pdf
+data/record90.pdf,21150,0,other report,record90.pdf
+data/record91.pdf,0,1,use of force report,record91.pdf
+data/record92.pdf,0,1,email/letter,record92.pdf
+data/record93.pdf,4939,123,email/letter,record93.pdf
+data/record94.pdf,0,1,other report,record94.pdf
+data/record95.pdf,14578,2,meeting notes,record95.pdf
+data/record96.pdf,0,1,email/letter,record96.pdf
+data/record97.pdf,0,1,other report,record97.pdf
+data/record98.pdf,0,1,other,record98.pdf
+data/record99.pdf,0,1,other,record99.pdf
+data/record100.pdf,7218,0,other report,record100.pdf
+data/record101.pdf,0,1,coroner report,record101.pdf
+data/record102.pdf,0,1,coroner report,record102.pdf
+data/record103.pdf,0,1,coroner report,record103.pdf
+data/record104.pdf,0,1,coroner report,record104.pdf
