@@ -5,7 +5,7 @@ import json
 from tqdm import tqdm
 
 def extract_text_from_pdf(pdf_path):
-    """Extract all text from a PDF file."""
+    # Extract all text from a PDF file
     doc = fitz.open(pdf_path)
     text = ""
     for page in doc:
@@ -14,7 +14,7 @@ def extract_text_from_pdf(pdf_path):
     return text.strip()
 
 def process_pdfs(input_dir, output_dir):
-    """Process all PDFs in directory and save extracted text."""
+    # Process all PDFs in directory and save extracted text
     input_path = Path(input_dir)
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
