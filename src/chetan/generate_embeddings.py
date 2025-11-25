@@ -15,19 +15,24 @@ def generate_embeddings(texts_data, model_name='all-MiniLM-L6-v2'):
     print(f"Loading model: {model_name}\n")
     model = SentenceTransformer(model_name)
 
+    # Extract just the text for embedding
     texts = [doc['text'] for doc in texts_data]
+    filenames = [doc['filename'] for doc in texts_data]
 
-    print(f"Generating embeddings for {len(texts)} documents")
+    print(f"Generating embeddings for {len(texts)} documents...")
     embeddings = model.encode(texts, show_progress_bar=True)
 
-    return embeddings
+    return embeddings, filenames
 
-def save_embeddings(embeddings, output_dir):
-    # Save embeddings
+def save_embeddings(embeddings, filenames, output_dir):
+    # Save embeddings and metadata
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     np.save(output_path / "embeddings.npy", embeddings)
+
+    with open(output_path / "filenames.json", 'w') as f:
+        json.dump(filenames, f, indent=2)
 
     print(f"Saved embeddings: shape {embeddings.shape}")
     print(f"Saved to {output_path}")
@@ -38,6 +43,6 @@ if __name__ == "__main__":
 
     texts_data = load_extracted_texts(input_file)
 
-    embeddings = generate_embeddings(texts_data)
+    embeddings, filenames = generate_embeddings(texts_data)
 
-    save_embeddings(embeddings, output_dir)
+    save_embeddings(embeddings, filenames, output_dir)
