@@ -23,7 +23,7 @@ class Document:
     location: pathlib.Path
 
     def __str__(self):
-        return 'self'
+        return self.name
 
     def describe(self):
         return {"name": self.name, "format": self.format}
@@ -31,12 +31,21 @@ class Document:
     def get_full_content(self):
         pass
 
+    def __len__(self):
+        pass
+
+    def set_tokens(self, tokens):
+        pass
+
+    def get_tokens(self):
+        return []
 
 
 @dataclass
 class PDF (Document):
     pages: list[Page]
     type: str
+    tokens: list[str]
 
     def __init__(self,name,location):
         self.name = name
@@ -44,7 +53,6 @@ class PDF (Document):
         self.pages = []
         self.type = "unknown"
         self.location = location
-        print('new doc')
 
     def add_page(self,page):
         self.pages.append(page)
@@ -64,6 +72,16 @@ class PDF (Document):
         for page in self.pages:
             full_text += str(page)
         return full_text
+
+    def __len__(self):
+        return len(self.pages)
+
+    def set_tokens(self, tokens):
+        print('adding tokens')
+        self.tokens = tokens
+
+    def get_tokens(self):
+        return self.tokens
 
 @dataclass
 class Dataset:

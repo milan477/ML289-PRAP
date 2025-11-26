@@ -18,3 +18,9 @@ matplotlib
 seaborn
 scikit-learn
 tqdm
+seaborn
+accelerate>=0.26.0
+pdf2image
+pytesseract
+opencv-python
+transformers
