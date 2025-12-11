@@ -1,14 +1,28 @@
 from dataclasses import dataclass
-import pathlib
 import pandas as pd
 from typing_extensions import override
+
+import torch
+import os
+import pytesseract
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from pdf2image import convert_from_path
+from tqdm import tqdm
+from pathlib import Path
+from PIL import Image, ImageDraw
+from PIL.PpmImagePlugin import PpmImageFile
+from dataclasses import dataclass
 
 
 @dataclass
 class Page:
     text: str
-    def __init__(self, text: str):
-        self.text = text
+    ocr_data: pd.DataFrame
+    image: PpmImageFile
 
     def __str__(self):
         return self.text
@@ -16,13 +30,36 @@ class Page:
     def __len__(self):
         return len(self.text)
 
+    def draw_boxes(self):
+        coordinates = self.ocr_data[['left', 'top', 'width', 'height']]
+        actual_boxes = []
+        for idx, row in coordinates.iterrows():
+            x, y, w, h = tuple(row) # the row comes in (left, top, width, height) format
+            actual_box = [x, y, x+w, y+h] # we turn it into (left, top, left+width, top+height) to get the actual box
+            actual_boxes.append(actual_box)
+
+        image = self.image.copy()
+        draw = ImageDraw.Draw(image, "RGB")
+        for box in actual_boxes:
+            draw.rectangle(box, outline='red')
+        return image
+
+
+
 @dataclass
 class Document:
     name: str
-    format: str
-    location: pathlib.Path
+    location: Path
+    pages: list[Page]
+    format: str = "pdf"
+
+    def add_page(self,page):
+        self.pages.append(page)
 
     def __str__(self):
+        return self.name
+
+    def __repr__(self):
         return self.name
 
     def describe(self):
@@ -40,71 +77,71 @@ class Document:
     def get_tokens(self):
         return []
 
+    def inspect(self,pagenr=0):
+        assert pagenr < len(self.pages)
+        return self.pages[pagenr].draw_boxes()
 
-@dataclass
-class PDF (Document):
-    pages: list[Page]
-    type: str
-    tokens: list[str]
-
-    def __init__(self,name,location):
-        self.name = name
-        self.format = "pdf"
-        self.pages = []
-        self.type = "unknown"
-        self.location = location
-
-    def add_page(self,page):
-        self.pages.append(page)
-
-    def __str__(self):
-        full_text = f"\n########################################################## begin of {self.name} of type {self.type} ##########################################################\n"
-        full_text += self.get_full_content()
-        full_text += f"\n########################################################## end of {self.name} of type {self.type} ##########################################################\n"
-        return full_text
-
-    def describe(self):
-        return {'type': self.type, 'name': self.name, 'format': self.format, 'pages': "".join(str(self.pages))}
-
-    @override
-    def get_full_content(self):
-        full_text = ""
+    def get_full_text(self):
+        content = ''
         for page in self.pages:
-            full_text += str(page)
-        return full_text
+            content += page.text
+        return content
 
-    def __len__(self):
-        return len(self.pages)
+    def read(self):
+        print(self.get_full_text())
 
-    def set_tokens(self, tokens):
-        print('adding tokens')
-        self.tokens = tokens
+    def is_image(self,threshold = 10):
+        if len(self.get_full_text()) < threshold:
+            return True
+        return False
 
-    def get_tokens(self):
-        return self.tokens
+    def show(self, ax, label=None):
+        ax.imshow(self.pages[0].image)
+        ax.axis('off')
+        title = 'id: ' + str(self.get_id()) + label if label else 'id: ' + str(self.get_id())
+        ax.set_title(title)
+
+    def get_id(self):
+        return int(self.name.split('id')[1].split('.pdf')[0])
 
 @dataclass
-class Dataset:
-    name: str
-    documents: list[Document]
+class DocumentDataset:
+    documents : list[Document]
 
-    def __init__(self,documents):
-        self.documents = documents
+    def info(self):
+        return {'size': len(self.documents)}
 
-    def __str__(self):
-        full_dataset = ""
+    def remove_images(self):
+        trimmed = []
         for document in self.documents:
-            full_dataset += str(document)
-        return full_dataset
+            if not document.is_image():
+                trimmed.append(document)
+        return DocumentDataset(trimmed)
 
-    def __len__(self):
-        return len(self.documents)
+    def __getitem__(self,key):
+        return self.documents[key]
 
-    def to_frame(self):
-        all_documents = []
-        for document in self.documents:
-            all_documents.append(document.describe())
-        return pd.DataFrame(all_documents)
+    def show(self, start_index = 0, end_index = None):
+        if not end_index:
+            end_index = start_index + 1
+        num_images = end_index-start_index
+        width = min(num_images, 4)
+        height = 1 + num_images % width
 
+        fig = plt.figure(figsize=(width*4, height*4))
 
+        for i, index in enumerate(range(start_index, end_index)):
+            ax = fig.add_subplot(height, width, i + 1)
+            document = self.documents[index]
+            document.show(ax)
 
+        plt.tight_layout()
+        plt.show()
+
+    def read(self, index):
+        document = self.documents[index]
+        document.read()
+
+    def inspect(self, index, pagenr=0):
+        document = self.documents[index]
+        return document.inspect(pagenr)

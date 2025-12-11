@@ -2,51 +2,64 @@ from pypdf import PdfReader
 from src.config import DATA_DIR
 from pathlib import Path
 import pandas as pd
-from src.schema.dataset import PDF,Page,Dataset
+from src.schema.dataset import Page,DocumentDataset, Document
 from pdf2image import convert_from_path
 import pytesseract
 
-def _read_single_pdf_pypdf(path: Path) -> PDF:
-    reader = PdfReader(path)
-    print(f"Reading {path.name} ({len(reader.pages)} pages)")
 
-    pdf = PDF(name=path.name, location=path)
+def concatenate(s):
+    return ' '.join([str(t) for t in s if str(t) != 'nan' and str(t).strip() != ''])
 
-    for page in reader.pages:
-        pdf.add_page(Page(page.extract_text()))
+def get_text(ocr_data, show=False):
+    lines = ocr_data.groupby(
+        ['page_num','block_num','line_num'])[['text']].agg(concatenate)
+    text = str('\n'.join(lines['text'].values))
+    if show:
+       print(text)
+    return text
 
-    return pdf
+def get_file_id(filename):
+    return int(filename.split('id')[1].split('.pdf')[0])
 
-def _read_single_pdf_pytesseract(path: Path) -> PDF:
+def _read_single_pdf_pytesseract(path: Path) -> Document:
     print(f"Reading {path.name} with pytesseract")
-    pages = convert_from_path(path)
 
-    page = pages[0]
-    data = pytesseract.image_to_data(page,output_type=pytesseract.Output.DICT)
+    images = convert_from_path(path, first_page=1, last_page=1)
+    pages = []
+
+    for image in images[:1]:
+        print(f'Processing page {len(pages)+1} / {len(images)}')
+
+        ocr_data = pd.DataFrame(
+                pytesseract.image_to_data(
+                    image = image,
+                    lang = 'eng',
+                    output_type=pytesseract.Output.DICT)
+                    )
+        text = get_text(ocr_data, show=False)
+        pages.append(Page(text=text, ocr_data = ocr_data, image = image))
+
+        # image = preprocess(page).unsqueeze(0).to(device)
+
+    print(' --> done')
+    return Document(pages = pages, name = path.name, format = 'pdf', location = path)
 
 
-    return page, data
 
-def _read_single_pdf(path: Path, method: str = 'pypdf'):
-    if method == 'pypdf':
-        return _read_single_pdf_pypdf(path)
+def read_pdfs(path: Path, method = 'pytesseract', limit = 5):
+    count = 0
+    pdfs = []
+    files = {get_file_id(f.name) : f for f in path.iterdir() if f.is_file() and f.name.endswith('.pdf')}
 
     if method == 'pytesseract':
-        return _read_single_pdf_pytesseract(path)
+        for filenr in range(1,limit+1):
+            file = files[filenr]
+            pdfs.append(_read_single_pdf_pytesseract(file))
+            count += 1
+            print(f'reading pdf {count}/{limit}')
+
+            if count == limit:
+                break
     else:
-        raise ValueError(f"Unknown method {method} for reading PDFs")
-
-        # for file in path.glob('*.pdf'):
-    #     pdfs.append(_read_single_pdf(file))
-    #     if i == 1: break
-    #     i += 1
-def read_pdfs(path: Path = DATA_DIR, method: str = 'pypdf') -> Dataset:
-
-    pdfs = []
-    print(f"Reading {path.name} ({len(pdfs)} pages) using {method}")
-    i = 0
-    for i in range(2):
-        pdfs.append(_read_single_pdf(path / f"record{i}.pdf", method=method))
-    return Dataset(pdfs)
-if __name__ == '__main__':
-    print(f'read {len(read_pdfs())} PDFs')
+        raise ValueError(f"Unknown method {method} for reading PDF")
+    return DocumentDataset(pdfs)
