@@ -5,6 +5,7 @@ from typing_extensions import override
 import torch
 import os
 import pytesseract
+import pymupdf
 
 import pandas as pd
 import numpy as np
@@ -16,6 +17,8 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 from PIL.PpmImagePlugin import PpmImageFile
 from dataclasses import dataclass
+
+from io import BytesIO
 
 
 @dataclass
@@ -43,6 +46,7 @@ class Page:
         for box in actual_boxes:
             draw.rectangle(box, outline='red')
         return image
+
 
 
 
@@ -104,6 +108,41 @@ class Document:
     def get_id(self):
         return int(self.name.split('id')[1].split('.pdf')[0])
 
+    def extract_images(self):
+        doc = pymupdf.open(self.location)
+        image_list = []
+        pages = []
+        for pg_idx in range(len(doc)):
+            page = doc[pg_idx]
+            images = page.get_images()
+            image_list.extend(images)
+            pages.extend([pg_idx] * len(images))
+
+
+        num_images = len(image_list)
+        width = min(num_images, 4)
+        height = 1 + num_images % width
+
+        fig = plt.figure(figsize=(width*4, height*4))
+
+        for index, image in enumerate(image_list):
+
+            xref = image[0]
+            base_image = doc.extract_image(xref)
+            image_bytes = base_image["image"]
+            image = Image.open(BytesIO(image_bytes))
+
+            if np.array(image).mean() < 1:
+                continue
+
+            ax = fig.add_subplot(height*4, width*4, index + 1, title=f"Page {pages[index]+1}")
+            ax.axis('off')
+
+            ax.imshow(image)
+
+        plt.tight_layout()
+        plt.show()
+
 @dataclass
 class DocumentDataset:
     documents : list[Document]
@@ -145,3 +184,7 @@ class DocumentDataset:
     def inspect(self, index, pagenr=0):
         document = self.documents[index]
         return document.inspect(pagenr)
+
+    def extract_images(self, index):
+        document = self.documents[index]
+        document.extract_images()
