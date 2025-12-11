@@ -20,6 +20,8 @@ from dataclasses import dataclass
 
 from io import BytesIO
 
+from src.preprocessing.preprocess import _clean_text
+
 
 @dataclass
 class Page:
@@ -46,9 +48,6 @@ class Page:
         for box in actual_boxes:
             draw.rectangle(box, outline='red')
         return image
-
-
-
 
 @dataclass
 class Document:
@@ -94,16 +93,36 @@ class Document:
     def read(self):
         print(self.get_full_text())
 
-    def is_image(self,threshold = 10):
-        if len(self.get_full_text()) < threshold:
+    def is_image(self,threshold = 200):
+
+        clean_text = _clean_text(self.get_full_text())
+        words = 0
+        for word in clean_text.split():
+            if len(word) > 2:
+                words += 1
+
+
+        if len(clean_text) < threshold or words < 20:
             return True
         return False
 
-    def show(self, ax, label=None):
+    def show(self, ax=None, label=None, idx=None):
+        if not ax:
+            show_image = True
+            fig, ax = plt.subplots(figsize=(8,10))
+        else:
+            show_image = False
+
         ax.imshow(self.pages[0].image)
         ax.axis('off')
-        title = 'id: ' + str(self.get_id()) + label if label else 'id: ' + str(self.get_id())
+        id = 'id: ' + str(self.get_id())
+        annotation = ' (image: ' + str(idx) + ')' if idx is not None else ''
+        title = id + annotation + label if label else id + annotation
+
         ax.set_title(title)
+
+        if show_image:
+            plt.show()
 
     def get_id(self):
         return int(self.name.split('id')[1].split('.pdf')[0])
@@ -160,19 +179,30 @@ class DocumentDataset:
     def __getitem__(self,key):
         return self.documents[key]
 
-    def show(self, start_index = 0, end_index = None):
-        if not end_index:
-            end_index = start_index + 1
-        num_images = end_index-start_index
+    def show(self, start_index = 0, end_index = None, indices = None):
+
+        if indices:
+            num_images = len(indices)
+        else:
+            if not end_index:
+                if not start_index:
+                    start_index = 0
+                    end_index = min(100, len(self.documents))
+                else:
+                    end_index = start_index + 1
+
+            indices = range(start_index, end_index)
+            num_images = len(indices)
+
         width = min(num_images, 4)
-        height = 1 + num_images % width
+        height = int(np.ceil(num_images / width))
 
         fig = plt.figure(figsize=(width*4, height*4))
 
-        for i, index in enumerate(range(start_index, end_index)):
+        for i, index in enumerate(indices):
             ax = fig.add_subplot(height, width, i + 1)
             document = self.documents[index]
-            document.show(ax)
+            document.show(ax, idx=index)
 
         plt.tight_layout()
         plt.show()
@@ -188,3 +218,12 @@ class DocumentDataset:
     def extract_images(self, index):
         document = self.documents[index]
         document.extract_images()
+
+    def show_clusters(self, labels):
+        for label in set(labels):
+            print(f"{'_'*100}\nCluster {label}:")
+            indices = []
+            for i, doc in enumerate(self.documents):
+                if labels[i] == label:
+                    indices.append(i)
+            self.show(indices=indices)

@@ -1,0 +1,52 @@
+def ask_a_question(question = "what kind of document is this?", ocrs=[], model_for_QA=None):
+    types = []
+    for ocr_data in tqdm(ocrs):
+        words, boxes = convert_text_to_boxes(ocr_data)
+
+        encoding = tokenizer_for_QA(
+            question.split(),
+            words,
+            is_split_into_words=True,
+            return_token_type_ids=True,
+            return_tensors="pt",
+            padding="max_length",
+            truncation=True,
+        )
+        encoding["bbox"] = torch.tensor([boxes])
+
+        bbox = []
+        for i, s, w in zip(encoding.input_ids[0], encoding.sequence_ids(0), encoding.word_ids(0)):
+            if s == 1 and w is not None:
+                bbox.append(boxes[w])
+            elif i == tokenizer.sep_token_id:
+                bbox.append([1000] * 4)
+            else:
+                bbox.append([0] * 4)
+        encoding["bbox"] = torch.tensor([bbox])
+
+        outputs = model_for_QA(**encoding)
+
+        start_scores = outputs.start_logits
+        end_scores = outputs.end_logits
+
+        start_probabilities = torch.softmax(start_scores, dim=1).squeeze()
+        end_probabilities = torch.softmax(end_scores, dim=1).squeeze()
+
+        topk_start = torch.topk(start_probabilities, k=3)[1].squeeze()
+        topk_end = torch.topk(end_probabilities, k=3)[1].squeeze()
+
+        word_ids = encoding.word_ids(0)
+        possible_answers = []
+        probabilities = []
+        for start_token, end_token in zip(topk_start, topk_end):
+            if start_probabilities[start_token] > 0.1 and end_probabilities[end_token] > 0.1:
+                start_word, end_word = word_ids[start_token], word_ids[end_token]
+
+                if start_word is not None and end_word is not None and start_word <= end_word and end_word < start_word + 10:
+                    possible_answers.append(" ".join(words[start_word : end_word + 1]))
+                    probabilities.append([start_probabilities[start_token], end_probabilities[end_token]])
+
+
+        types.append([possible_answers if len(possible_answers) > 0 else ["N/A"], probabilities])
+
+    return types

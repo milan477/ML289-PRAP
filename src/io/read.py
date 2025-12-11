@@ -1,3 +1,7 @@
+
+from PIL import Image
+Image.MAX_IMAGE_PIXELS = 300000000  # to avoid DecompressionBombError for large images
+
 from pypdf import PdfReader
 from src.config import DATA_DIR
 from pathlib import Path
@@ -24,7 +28,7 @@ def get_file_id(filename):
 def _read_single_pdf_pytesseract(path: Path) -> Document:
     print(f"Reading {path.name} with pytesseract")
 
-    images = convert_from_path(path, first_page=1, last_page=1)
+    images = convert_from_path(path, first_page=1, last_page=1, dpi=350)
     pages = []
 
     for image in images[:1]:
@@ -46,13 +50,16 @@ def _read_single_pdf_pytesseract(path: Path) -> Document:
 
 
 
-def read_pdfs(path: Path, method = 'pytesseract', limit = 5):
+def read_pdfs(path: Path, method = 'pytesseract', begin = 1, limit = 10) -> DocumentDataset:
     count = 0
     pdfs = []
     files = {get_file_id(f.name) : f for f in path.iterdir() if f.is_file() and f.name.endswith('.pdf')}
 
     if method == 'pytesseract':
-        for filenr in range(1,limit+1):
+        for filenr in range(begin,limit+1):
+            if filenr not in files:
+                print(f'File id{filenr}.pdf not found, skipping...')
+                continue
             file = files[filenr]
             pdfs.append(_read_single_pdf_pytesseract(file))
             count += 1
