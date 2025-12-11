@@ -281,6 +281,8 @@ def scrape_database(start_page = 1, end_page = 1):
 
     # Configuration
     output_dir = "data/policerecords/pdfs"
+    os.makedirs(output_dir, exist_ok=True)
+
 
     print(f"\nDownloading pages {start_page} to {end_page}")
     print(f"Output directory: {output_dir}")
