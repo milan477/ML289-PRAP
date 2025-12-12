@@ -7,6 +7,8 @@ import requests
 import os
 import time
 
+from src.types.document_type import DocumentType
+
 class PoliceRecordsDownloader:
     def __init__(self, output_dir="police_records", headless=True):
         self.base_url = "https://policerecords.kqed.org"
@@ -59,7 +61,72 @@ class PoliceRecordsDownloader:
                         continue
 
         return max_id +1
-
+    def classify_case_page(self, case_url):
+        """
+        Analyze the case page to determine document type BEFORE downloading
+        Returns: DocumentType enum
+        """
+        try:
+            self.driver.get(case_url)
+            time.sleep(2)  # Wait for page to load
+            
+            # Get all visible text on the page
+            page_text = self.driver.find_element(By.TAG_NAME, "body").text.lower()
+            
+            # Also check for any title or header elements
+            try:
+                title = self.driver.find_element(By.TAG_NAME, "h1").text.lower()
+                page_text = title + " " + page_text
+            except:
+                pass
+            
+            # Check first 1000 characters for classification
+            header = page_text[:1000]
+            
+            # Classification logic based on page content
+            
+            # Commission agenda indicators
+            if any(keyword in header for keyword in [
+                'agenda', 'commission meeting', 'meeting minutes', 
+                'call to order', 'public comment', 'board meeting'
+            ]):
+                return DocumentType.COMMISSION_AGENDA
+            
+            # Discovery package indicators (MOST IMPORTANT FOR YOU)
+            if any(keyword in header for keyword in [
+                'discovery', 'case number', 'incident report', 'officer involved',
+                'investigation', 'detective', 'evidence', 'witness statement',
+                'use of force', 'shooting', 'police report', 'incident number'
+            ]):
+                return DocumentType.DISCOVERY_PACKAGE
+            
+            # Press release indicators
+            if any(keyword in header for keyword in [
+                'press release', 'for immediate release', 'media contact',
+                'announcement', 'public information'
+            ]):
+                return DocumentType.PRESS_RELEASE
+            
+            # Correspondence indicators
+            if any(keyword in header for keyword in [
+                'letter', 'memorandum', 'correspondence', 're:',
+                'dear', 'sincerely', 'cc:'
+            ]):
+                return DocumentType.CORRESPONDENCE
+            
+            # Reports indicators
+            if any(keyword in header for keyword in [
+                'annual report', 'quarterly report', 'statistical report',
+                'summary report', 'audit', 'review'
+            ]):
+                return DocumentType.REPORTS
+            
+            return DocumentType.UNKNOWN
+            
+        except Exception as e:
+            print(f"  Error classifying case page: {e}")
+            return DocumentType.UNKNOWN
+            
     def get_case_links_from_page(self, page_num):
         """Get all case links from a specific page number"""
         url = f"{self.base_url}/?page={page_num}"
@@ -293,4 +360,4 @@ def scrape_database(start_page = 1, end_page = 1):
 
 
 if __name__ == "__main__":
-    scrape_database()
+    scrape_database(start_page=1, end_page=15)

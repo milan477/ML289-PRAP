@@ -17,10 +17,13 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 from PIL.PpmImagePlugin import PpmImageFile
 from dataclasses import dataclass
+from enum import Enum
 
 from io import BytesIO
 
 from src.preprocessing.preprocess import _clean_text
+
+from src.types.document_type import DocumentType
 
 
 @dataclass
@@ -55,6 +58,7 @@ class Document:
     location: Path
     pages: list[Page]
     format: str = "pdf"
+    type: DocumentType = DocumentType.UNKNOWN
 
     def add_page(self,page):
         self.pages.append(page)
@@ -175,6 +179,32 @@ class DocumentDataset:
             if not document.is_image():
                 trimmed.append(document)
         return DocumentDataset(trimmed)
+    
+    def group_documents(self) -> dict[str, list[Document]]:
+        """Group documents by their type"""
+        grouped = {
+            DocumentType.COMMISSION_AGENDA.value: [],
+            DocumentType.DISCOVERY_PACKAGE.value: [],
+            DocumentType.PRESS_RELEASE.value: [],
+            DocumentType.CORRESPONDENCE.value: [],
+            DocumentType.REPORTS.value: [],
+            DocumentType.UNKNOWN.value: []
+        }
+        
+        for document in self.documents:
+            doc_type = document.type
+            if doc_type in grouped:
+                grouped[doc_type].append(document)
+            else:
+                grouped[DocumentType.UNKNOWN.value].append(document)
+        
+        return grouped
+
+    def filter_by_type(self, doc_types: list[DocumentType]) -> 'DocumentDataset':
+        """Return a new dataset containing only specified types"""
+        type_values = [dt.value for dt in doc_types]
+        filtered = [doc for doc in self.documents if doc.type in type_values]
+        return DocumentDataset(filtered)
 
     def __getitem__(self,key):
         return self.documents[key]
