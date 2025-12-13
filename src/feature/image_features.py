@@ -36,7 +36,7 @@ def get_layout(document, pagenr=0):
       color = class_styles.get(cl, {'color': (0, 0, 0), 'alpha': 0.3})
       cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), color['color'], -1)  # -1 = filled
 
-  alpha = 0.3
-  cv2.addWeighted(det_res[0].orig_img.copy(), alpha, annotated_frame, 1 - alpha, 0, annotated_frame)
+  # alpha = 0.3
+  # cv2.addWeighted(det_res[0].orig_img.copy(), alpha, annotated_frame, 1 - alpha, 0, annotated_frame)
 
   return annotated_frame

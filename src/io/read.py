@@ -84,10 +84,22 @@ def read_pdfs_latest(path: Path, method = 'pytesseract') -> DocumentDataset:
                 count += 1
 
             if file.is_dir():
+                print(f'Entering directory {file.name}')
                 for subfile in file.iterdir():
                     if subfile.is_file() and subfile.name.endswith('.pdf'):
                         pdfs.append(_read_single_pdf_pytesseract(subfile))
                         count += 1
 
+                    elif subfile.is_dir():
+                        print(f'Entering directory {file.name}')
+                        for subsubfile in subfile.iterdir():
+                            if subsubfile.is_file() and subsubfile.name.endswith('.pdf'):
+                                pdfs.append(_read_single_pdf_pytesseract(subsubfile))
+                                count += 1
+
+
+
+
+    print(f'Total PDFs read: {count}')
 
     return DocumentDataset(pdfs)
