@@ -10,6 +10,7 @@ import pymupdf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 
 from pdf2image import convert_from_path
 from tqdm import tqdm
@@ -21,6 +22,19 @@ from dataclasses import dataclass
 from io import BytesIO
 
 from src.preprocessing.preprocess import _clean_text
+
+class_styles = {
+        0: {'color': (255, 0, 0), 'alpha': 0.3},      # Bright Red
+        1: {'color': (0, 255, 0), 'alpha': 0.3},      # Bright Green
+        2: {'color': (0, 0, 255), 'alpha': 0.3},      # Bright Blue
+        3: {'color': (255, 255, 0), 'alpha': 0.3},    # Cyan (Yellow in BGR)
+        4: {'color': (255, 0, 255), 'alpha': 0.3},    # Magenta
+        5: {'color': (0, 255, 255), 'alpha': 0.3},    # Yellow (Cyan in BGR)
+        6: {'color': (255, 128, 0), 'alpha': 0.3},    # Orange
+        7: {'color': (128, 0, 128), 'alpha': 0.3},    # Purple
+        8: {'color': (0, 128, 128), 'alpha': 0.3},    # Teal
+        9: {'color': (255, 255, 255), 'alpha': 0.3},  # White
+        }
 
 
 @dataclass
@@ -106,6 +120,8 @@ class Document:
             return True
         return False
 
+
+
     def show(self, ax=None, label=None, idx=None):
         if not ax:
             show_image = True
@@ -115,7 +131,7 @@ class Document:
 
         ax.imshow(self.pages[0].image)
         ax.axis('off')
-        id = 'id: ' + str(self.get_id())
+        id = 'id: ' + str(self.get_id()) if self.get_id() else ''
         annotation = ' (image: ' + str(idx) + ')' if idx is not None else ''
         title = id + annotation + label if label else id + annotation
 
@@ -125,7 +141,7 @@ class Document:
             plt.show()
 
     def get_id(self):
-        return int(self.name.split('id')[1].split('.pdf')[0])
+        return 0 if not '_id' in self.name else int(self.name.split('id')[1].split('.pdf')[0])
 
     def extract_images(self):
         doc = pymupdf.open(self.location)
@@ -161,6 +177,8 @@ class Document:
 
         plt.tight_layout()
         plt.show()
+
+
 
 @dataclass
 class DocumentDataset:
@@ -227,3 +245,8 @@ class DocumentDataset:
                 if labels[i] == label:
                     indices.append(i)
             self.show(indices=indices)
+
+
+    def get_full_text(self, index):
+        document = self.documents[index]
+        return document.get_full_text()

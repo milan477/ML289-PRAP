@@ -70,3 +70,24 @@ def read_pdfs(path: Path, method = 'pytesseract', begin = 1, limit = 10) -> Docu
     else:
         raise ValueError(f"Unknown method {method} for reading PDF")
     return DocumentDataset(pdfs)
+
+
+def read_pdfs_latest(path: Path, method = 'pytesseract') -> DocumentDataset:
+    count = 0
+    pdfs = []
+
+    if method == 'pytesseract':
+        for file in path.iterdir():
+            print(f'reading file {file.name}')
+            if file.is_file() and file.name.endswith('.pdf'):
+                pdfs.append(_read_single_pdf_pytesseract(file))
+                count += 1
+
+            if file.is_dir():
+                for subfile in file.iterdir():
+                    if subfile.is_file() and subfile.name.endswith('.pdf'):
+                        pdfs.append(_read_single_pdf_pytesseract(subfile))
+                        count += 1
+
+
+    return DocumentDataset(pdfs)
